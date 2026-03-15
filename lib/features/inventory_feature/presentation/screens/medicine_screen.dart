@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/dependency_injection/service_locator.dart';
-import '../../../../core/utiles/app_colors.dart';
 import '../cubit/medicine_cubit.dart';
 import '../cubit/medicine_states.dart';
+import '../pages/add_medicine_screen.dart';
 import '../widgets/medicine_item.dart';
 
 class MedicineScreen extends StatelessWidget {
@@ -11,52 +11,55 @@ class MedicineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<MedicineCubit>()..getMedicines(),
-      child: Column(
-        children: [
-          _buildSearchAndFilter(),
-          Expanded(
-            child: BlocBuilder<MedicineCubit, MedicineStates>(
-              builder: (context, state) {
-                if (state is GetMedicinesLoadingState) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is GetMedicinesSuccessState) {
+    return BlocProvider.value(
+      value: sl<MedicineCubit>()..getMedicines(),
+      child: Scaffold(
+        // إزالة الـ AppBar من هنا لأنها موجودة في الـ HomeScreen
+        body: Column(
+          children: [
+            _buildSearchAndFilter(context),
+            Expanded(
+              child: BlocBuilder<MedicineCubit, MedicineStates>(
+                builder: (context, state) {
+                  var cubit = MedicineCubit.get(context);
+                  
+                  if (state is MedicineLoadingState && cubit.medicines.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  
+                  if (cubit.filteredMedicines.isEmpty) {
+                    return const Center(child: Text("لا توجد أدوية في المخزن"));
+                  }
+
                   return ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) => MedicineItem(
-                      medicine: state.medicines[index],
+                      medicine: cubit.filteredMedicines[index],
                     ),
                     separatorBuilder: (context, index) => const SizedBox(height: 12),
-                    itemCount: state.medicines.length,
+                    itemCount: cubit.filteredMedicines.length,
                   );
-                } else if (state is GetMedicinesErrorState) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline, size: 60, color: AppColors.error),
-                        const SizedBox(height: 16),
-                        Text(state.error, style: const TextStyle(color: AppColors.textSecondary)),
-                        TextButton(
-                          onPressed: () => context.read<MedicineCubit>().getMedicines(),
-                          child: const Text("إعادة المحاولة"),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox();
-              },
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.blue,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddMedicineScreen()),
+            );
+          },
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }
 
-  Widget _buildSearchAndFilter() {
+  Widget _buildSearchAndFilter(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Row(
@@ -65,33 +68,20 @@ class MedicineScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
-              child: const TextField(
-                decoration: InputDecoration(
-                  icon: Icon(Icons.search, color: AppColors.textSecondary),
+              child: TextField(
+                onChanged: (value) {
+                  MedicineCubit.get(context).searchMedicine(value);
+                },
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.search, color: Colors.grey),
                   hintText: "ابحث عن دواء...",
                   border: InputBorder.none,
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: const Icon(Icons.tune, color: Colors.white),
           ),
         ],
       ),

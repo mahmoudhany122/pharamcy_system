@@ -1,0 +1,17 @@
+{
+  "app_name": "Smart Pharmacy System",
+  "login": "Login",
+  "register": "Register",
+  "email": "Email Address",
+  "password": "Password",
+  "inventory": "Inventory",
+  "pos": "Point of Sale",
+  "alerts": "Alerts",
+  "settings": "Settings",
+  "total_profit": "Total Profit",
+  "add_medicine": "Add Medicine",
+  "customer_name": "Customer Name",
+  "print_invoice": "Print Invoice",
+  "expired": "Expired",
+  "near_expiry": "Near Expiry"
+}

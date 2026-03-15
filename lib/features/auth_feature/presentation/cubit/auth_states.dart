@@ -1,31 +1,49 @@
-import 'package:equatable/equatable.dart';
-import '../../domain/entities/auth_entity.dart';
+abstract class AuthStates {}
 
-abstract class AuthStates extends Equatable {
-  const AuthStates();
+class AuthInitialState extends AuthStates {}
 
-  @override
-  List<Object?> get props => [];
+class AuthLoginLoadingState extends AuthStates {}
+
+class AuthLoginSuccessState extends AuthStates {
+  final String uId;
+  AuthLoginSuccessState(this.uId);
 }
 
-class InitialState extends AuthStates {}
-
-class LoadingState extends AuthStates {}
-
-class SuccessState extends AuthStates {
-  final AuthEntity user;
-  const SuccessState(this.user);
-
-  @override
-  List<Object?> get props => [user];
-}
-
-class ErrorState extends AuthStates {
+class AuthLoginErrorState extends AuthStates {
   final String error;
-  const ErrorState(this.error);
-
-  @override
-  List<Object?> get props => [error];
+  AuthLoginErrorState(this.error);
 }
 
-class ChangePasswordVisibilityState extends AuthStates {}
+class AuthRegisterLoadingState extends AuthStates {}
+
+class AuthRegisterSuccessState extends AuthStates {
+  final String uId;
+  AuthRegisterSuccessState(this.uId);
+}
+
+class AuthRegisterErrorState extends AuthStates {
+  final String error;
+  AuthRegisterErrorState(this.error);
+}
+
+class AuthCreateUserSuccessState extends AuthStates {
+  final String uId;
+  AuthCreateUserSuccessState(this.uId);
+}
+
+class AuthCreateUserErrorState extends AuthStates {
+  final String error;
+  AuthCreateUserErrorState(this.error);
+}
+
+class AuthSocialLoginSuccessState extends AuthStates {
+  final String uId;
+  AuthSocialLoginSuccessState(this.uId);
+}
+
+class AuthSocialLoginErrorState extends AuthStates {
+  final String error;
+  AuthSocialLoginErrorState(this.error);
+}
+
+class AuthChangePasswordVisibilityState extends AuthStates {}

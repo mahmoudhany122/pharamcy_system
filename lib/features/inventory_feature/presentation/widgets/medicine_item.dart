@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/utiles/app_colors.dart';
-import '../../domain_layer/entity/medicine_entity.dart';
+import '../../domain_layer/entities/medicine_entity.dart';
 
 class MedicineItem extends StatelessWidget {
   final MedicineEntity medicine;
@@ -9,12 +10,12 @@ class MedicineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int stock = int.tryParse(medicine.stockCount) ?? 0;
-    final bool isLowStock = stock < 10;
+    final bool isLowStock = medicine.quantity < 10;
+    final String formattedDate = DateFormat('yyyy-MM-dd').format(medicine.expiryDate);
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -36,7 +37,7 @@ class MedicineItem extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  _buildStatusIndicator(isLowStock),
+                  _buildStatusIndicator(isLowStock, medicine.isExpired),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -47,18 +48,17 @@ class MedicineItem extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.date_range, size: 14, color: AppColors.textSecondary),
+                            const Icon(Icons.date_range, size: 14, color: Colors.grey),
                             const SizedBox(width: 4),
                             Text(
-                              medicine.expiryDate,
+                              formattedDate,
                               style: const TextStyle(
-                                color: AppColors.textSecondary,
+                                color: Colors.grey,
                                 fontSize: 13,
                               ),
                             ),
@@ -67,7 +67,7 @@ class MedicineItem extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _buildPriceAndStock(stock, isLowStock),
+                  _buildPriceAndStock(medicine.quantity, isLowStock, medicine.sellingPrice),
                 ],
               ),
             ),
@@ -77,45 +77,49 @@ class MedicineItem extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIndicator(bool isLowStock) {
+  Widget _buildStatusIndicator(bool isLowStock, bool isExpired) {
     return Container(
       height: 60,
       width: 60,
       decoration: BoxDecoration(
-        gradient: isLowStock ? AppColors.errorGradient : AppColors.primaryGradient,
+        color: isExpired ? Colors.red : (isLowStock ? Colors.orange : Colors.blue),
         borderRadius: BorderRadius.circular(15),
       ),
-      child: const Icon(Icons.medical_services, color: Colors.white, size: 30),
+      child: Icon(
+        isExpired ? Icons.warning_rounded : Icons.medical_services,
+        color: Colors.white,
+        size: 30,
+      ),
     );
   }
 
-  Widget _buildPriceAndStock(int stock, bool isLowStock) {
+  Widget _buildPriceAndStock(int stock, bool isLowStock, double price) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          '${medicine.price} ج.م',
+          '$price ج.م',
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.primary,
+            color: Colors.blue,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: isLowStock ? AppColors.error.withOpacity(0.1) : AppColors.success.withOpacity(0.1),
+            color: isLowStock ? Colors.orange.withOpacity(0.1) : Colors.green.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isLowStock ? AppColors.error : AppColors.success,
+              color: isLowStock ? Colors.orange : Colors.green,
               width: 1,
             ),
           ),
           child: Text(
             'المخزون: $stock',
             style: TextStyle(
-              color: isLowStock ? AppColors.error : AppColors.success,
+              color: isLowStock ? Colors.orange : Colors.green,
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),

@@ -1,39 +1,94 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:zamalek_fans_app/features/home_feature/presentation/pages/home_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/cache/cahche_helper.dart';
 import 'core/dependency_injection/service_locator.dart';
 import 'core/network/dio_helper.dart';
+import 'core/network/notification_helper.dart';
+import 'core/utiles/app_theme.dart';
+import 'features/auth_feature/presentation/cubit/auth_cubit.dart';
+import 'features/home_feature/presentation/cubit/home_cubit.dart';
+import 'features/inventory_feature/presentation/cubit/medicine_cubit.dart';
+import 'features/settings_feature/presentation/cubit/settings_cubit.dart';
+import 'features/settings_feature/presentation/cubit/settings_states.dart';
 import 'features/splash_feature/presentation/pages/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint("Firebase initialization failed: $e");
+  }
+
   // Initialize Cache
   await CacheHelper.init();
-  
+
   // Initialize Dio
   DioHelper.init();
-  
+
+  // Initialize Notifications
+  await NotificationHelper.init();
+
   // Setup Dependency Injection
   await setupServiceLocator();
-  runApp(const MyApp());
+
+  bool isDark = CacheHelper.getData(key: 'isDark') ?? false;
+  String lang = CacheHelper.getData(key: 'lang') ?? 'ar';
+
+  runApp(MyApp(isDark: isDark, lang: lang));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isDark;
+  final String lang;
+  const MyApp({super.key, required this.isDark, required this.lang});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Pharmacy System',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: const Color(0xFF00A884),
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00A884)),
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.white,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => sl<HomeCubit>()),
+        BlocProvider(create: (context) => sl<AuthCubit>()),
+        BlocProvider(create: (context) => sl<MedicineCubit>()..getMedicines()),
+        BlocProvider(
+          create: (context) => SettingsCubit()
+            ..changeAppMode(fromShared: isDark)
+            ..changeLanguage(langCode: lang),
+        ),
+      ],
+      child: BlocBuilder<SettingsCubit, SettingsStates>(
+        builder: (context, state) {
+          var cubit = SettingsCubit.get(context);
+          return MaterialApp(
+            title: 'Pharmacy System',
+            debugShowCheckedModeBanner: false,
+            
+            // Localization
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('ar'),
+              Locale('en'),
+              Locale('fr'),
+            ],
+            locale: Locale(cubit.currentLang),
+            
+            // Themes
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: cubit.isDark ? ThemeMode.dark : ThemeMode.light,
+
+            home: const SplashScreen(),
+          );
+        },
       ),
-      home: const HomeScreen(),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain_layer/entity/medicine_entity.dart';
+import '../../domain_layer/entities/medicine_entity.dart';
 
 abstract class MedicineStates extends Equatable {
   const MedicineStates();
@@ -10,20 +10,28 @@ abstract class MedicineStates extends Equatable {
 
 class MedicineInitialState extends MedicineStates {}
 
-class GetMedicinesLoadingState extends MedicineStates {}
+class MedicineLoadingState extends MedicineStates {}
 
-class GetMedicinesSuccessState extends MedicineStates {
-  final List<MedicineEntity> medicines;
-  const GetMedicinesSuccessState(this.medicines);
+class MedicineSuccessState extends MedicineStates {}
 
-  @override
-  List<Object?> get props => [medicines];
-}
-
-class GetMedicinesErrorState extends MedicineStates {
+class MedicineErrorState extends MedicineStates {
   final String error;
-  const GetMedicinesErrorState(this.error);
-
+  const MedicineErrorState(this.error);
   @override
   List<Object?> get props => [error];
 }
+
+class MedicineAddLoadingState extends MedicineStates {}
+
+class MedicineAddSuccessState extends MedicineStates {}
+
+class MedicineAddErrorState extends MedicineStates {
+  final String error;
+  const MedicineAddErrorState(this.error);
+  @override
+  List<Object?> get props => [error];
+}
+
+class MedicineSearchState extends MedicineStates {}
+
+class MedicineFilterState extends MedicineStates {}

@@ -1,131 +1,114 @@
+import 'package:animate_do/animate_do.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zamalek_fans_app/core/utiles/app_colors.dart';
-import 'package:zamalek_fans_app/features/home_feature/presentation/cubit/home_cubit.dart';
+import '../../../../core/utiles/app_colors.dart';
+import '../cubit/home_cubit.dart';
 import '../cubit/home_states.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // إظهار رسالة ترحيبية عند فتح الشاشة
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showWelcomeMessage();
+    });
+  }
+
+  void _showWelcomeMessage() {
+    final user = FirebaseAuth.instance.currentUser;
+    final String userName = user?.displayName ?? "دكتور";
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        duration: const Duration(seconds: 4),
+        content: FadeInDown(
+          duration: const Duration(milliseconds: 800),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: const [
+                BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.waving_hand, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    "أهلاً بك يا $userName في نظامك الذكي! 🚀",
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => HomeCubit(),
       child: BlocConsumer<HomeCubit, HomeStates>(
+        listener: (context, state) {},
         builder: (context, state) {
-          var cubit = context.read<HomeCubit>();
+          var cubit = HomeCubit.get(context);
           return Scaffold(
-            backgroundColor: AppColors.background,
             appBar: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
               title: Column(
                 children: [
                   const Text(
                     "نظام الصيدلية",
-                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   Text(
                     cubit.titles[cubit.currentIndex],
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               centerTitle: true,
-              leading: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: CircleAvatar(
-                  backgroundColor: AppColors.primary,
-                  child: Icon(Icons.person, color: Colors.white, size: 20),
-                ),
-              ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.search, color: AppColors.textPrimary),
-                  onPressed: () {},
-                ),
-                Stack(
-                  alignment: Alignment.topRight,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.notifications_none_rounded, color: AppColors.textPrimary),
-                      onPressed: () {
-                        cubit.changeIndex(2); // Go to Alerts
-                      },
-                    ),
-                    const Positioned(
-                      top: 10,
-                      right: 10,
-                      child: CircleAvatar(
-                        radius: 5,
-                        backgroundColor: AppColors.error,
-                      ),
-                    ),
-                  ],
+                  icon: const Icon(Icons.notifications_none_rounded),
+                  onPressed: () => cubit.changeIndex(2),
                 ),
                 const SizedBox(width: 8),
               ],
             ),
-            body: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(opacity: animation, child: child);
-              },
+            body: FadeIn(
+              duration: const Duration(milliseconds: 500),
               child: cubit.screens[cubit.currentIndex],
             ),
-            bottomNavigationBar: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
-              ),
-              child: BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                backgroundColor: Colors.white,
-                selectedItemColor: AppColors.primary,
-                unselectedItemColor: AppColors.textSecondary,
-                showSelectedLabels: true,
-                showUnselectedLabels: true,
-                currentIndex: cubit.currentIndex,
-                elevation: 0,
-                onTap: (index) {
-                  cubit.changeIndex(index);
-                },
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.inventory_2_outlined),
-                    activeIcon: Icon(Icons.inventory_2),
-                    label: 'المخزن',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.point_of_sale_outlined),
-                    activeIcon: Icon(Icons.point_of_sale),
-                    label: 'المبيعات',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.notifications_active_outlined),
-                    activeIcon: Icon(Icons.notifications_active),
-                    label: 'التنبيهات',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.settings_outlined),
-                    activeIcon: Icon(Icons.settings),
-                    label: 'الإعدادات',
-                  ),
-                ],
-              ),
+            bottomNavigationBar: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              currentIndex: cubit.currentIndex,
+              onTap: (index) => cubit.changeIndex(index),
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), activeIcon: Icon(Icons.inventory_2), label: 'المخزن'),
+                BottomNavigationBarItem(icon: Icon(Icons.point_of_sale_outlined), activeIcon: Icon(Icons.point_of_sale), label: 'المبيعات'),
+                BottomNavigationBarItem(icon: Icon(Icons.notifications_active_outlined), activeIcon: Icon(Icons.notifications_active), label: 'التنبيهات'),
+                BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings), label: 'الإعدادات'),
+              ],
             ),
           );
         },
-        listener: (context, state) {},
       ),
     );
   }

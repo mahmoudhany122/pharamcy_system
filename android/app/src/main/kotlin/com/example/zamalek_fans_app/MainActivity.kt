@@ -1,4 +1,4 @@
-package com.example.zamalek_fans_app
+package com.example.pharmacy_system_app
 
 import io.flutter.embedding.android.FlutterActivity
 

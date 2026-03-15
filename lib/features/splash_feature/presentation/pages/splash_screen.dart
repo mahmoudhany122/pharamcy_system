@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utiles/app_colors.dart';
 import '../../../../core/cache/cahche_helper.dart';
-import 'package:zamalek_fans_app/features/auth_feature/presentation/pages/login_screen.dart';
-import 'package:zamalek_fans_app/features/home_feature/presentation/pages/home_screen.dart';
+import 'package:pharmacy_system_app/features/auth_feature/presentation/pages/login_screen.dart';
+import 'package:pharmacy_system_app/features/home_feature/presentation/pages/home_screen.dart';
 import '../../../on_boarding_feature/presentation/pages/on_boarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -43,12 +43,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       if (!mounted) return;
 
       final bool? onBoarding = CacheHelper.getData(key: 'onBoarding');
-      final String? token = CacheHelper.getData(key: 'token');
+      final String? uId = CacheHelper.getData(key: 'uId'); // تم التعديل من token إلى uId
 
       Widget nextScreen;
 
       if (onBoarding == true) {
-        if (token != null) {
+        if (uId != null && uId.isNotEmpty) {
           nextScreen = const HomeScreen();
         } else {
           nextScreen = const LoginScreen();

@@ -1,155 +1,113 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/cache/cahche_helper.dart';
-import '../../../../core/utiles/app_colors.dart';
 import '../../../auth_feature/presentation/pages/login_screen.dart';
+import '../cubit/settings_cubit.dart';
+import '../cubit/settings_states.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildProfileSection(),
-            const SizedBox(height: 30),
-            const Text(
-              "الإعدادات العامة",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 15),
-            _buildSettingsItem(
-              icon: Icons.language,
-              title: "اللغة",
-              trailing: "العربية",
-              onTap: () {},
-            ),
-            _buildSettingsItem(
-              icon: Icons.notifications_none_rounded,
-              title: "الإشعارات",
-              onTap: () {},
-            ),
-            _buildSettingsItem(
-              icon: Icons.dark_mode_outlined,
-              title: "الوضع الليلي",
-              onTap: () {},
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              "عن النظام",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 15),
-            _buildSettingsItem(
-              icon: Icons.info_outline,
-              title: "حول التطبيق",
-              onTap: () {},
-            ),
-            _buildSettingsItem(
-              icon: Icons.privacy_tip_outlined,
-              title: "سياسة الخصوصية",
-              onTap: () {},
-            ),
-            const SizedBox(height: 40),
-            _buildLogoutButton(context),
-          ],
-        ),
-      ),
-    );
-  }
+    return BlocConsumer<SettingsCubit, SettingsStates>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        var cubit = SettingsCubit.get(context);
 
-  Widget _buildProfileSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 35,
-            backgroundColor: AppColors.primary,
-            child: Icon(Icons.person, size: 40, color: Colors.white),
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('الإعدادات - Settings - Paramètres'),
           ),
-          const SizedBox(width: 20),
-          const Expanded(
+          body: Padding(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "د. أحمد محمد",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                // 1. Dark Mode Switch
+                ListTile(
+                  leading: const Icon(Icons.dark_mode_outlined),
+                  title: const Text('الوضع الليلي / Dark Mode'),
+                  trailing: Switch(
+                    value: cubit.isDark,
+                    onChanged: (value) {
+                      cubit.changeAppMode();
+                    },
+                  ),
                 ),
-                Text(
-                  "مدير الصيدلية",
-                  style: TextStyle(color: AppColors.textSecondary),
+                const Divider(),
+                
+                // 2. Language Selection
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10.0),
+                  child: Text(
+                    'اللغة / Language',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Wrap(
+                  spacing: 10,
+                  children: [
+                    ChoiceChip(
+                      label: const Text('العربية'),
+                      selected: cubit.currentLang == 'ar',
+                      onSelected: (selected) => cubit.changeLanguage(langCode: 'ar'),
+                    ),
+                    ChoiceChip(
+                      label: const Text('English'),
+                      selected: cubit.currentLang == 'en',
+                      onSelected: (selected) => cubit.changeLanguage(langCode: 'en'),
+                    ),
+                    ChoiceChip(
+                      label: const Text('Français'),
+                      selected: cubit.currentLang == 'fr',
+                      onSelected: (selected) => cubit.changeLanguage(langCode: 'fr'),
+                    ),
+                  ],
+                ),
+                const Divider(),
+
+                // 3. Notifications Status (Display Only for now)
+                ListTile(
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: const Text('الإشعارات مفعلة تلقائياً'),
+                  subtitle: const Text('Notifications are active'),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Firebase Notifications are set up!')),
+                    );
+                  },
+                ),
+                
+                const Spacer(),
+                
+                // 4. Logout Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      CacheHelper.removeData(key: 'uId').then((value) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                          (route) => false,
+                        );
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                    ),
+                    icon: const Icon(Icons.logout),
+                    label: const Text('تسجيل الخروج / Logout'),
+                  ),
                 ),
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
-            onPressed: () {},
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsItem({
-    required IconData icon,
-    required String title,
-    String? trailing,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: AppColors.primary),
-      ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-      trailing: trailing != null 
-          ? Text(trailing, style: const TextStyle(color: AppColors.textSecondary))
-          : const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
-    );
-  }
-
-  Widget _buildLogoutButton(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: () {
-          CacheHelper.removeData(key: 'token').then((value) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (route) => false,
-            );
-          });
-        },
-        icon: const Icon(Icons.logout, color: AppColors.error),
-        label: const Text(
-          "تسجيل الخروج",
-          style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
-        ),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          side: const BorderSide(color: AppColors.error),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
+        );
+      },
     );
   }
 }

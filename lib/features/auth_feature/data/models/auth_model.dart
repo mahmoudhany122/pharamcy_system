@@ -1,4 +1,5 @@
-import 'package:zamalek_fans_app/features/auth_feature/domain/entities/auth_entity.dart';
+
+import '../../domain/entities/auth_entity.dart';
 
 class UserModel extends AuthEntity
 {
