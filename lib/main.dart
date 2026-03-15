@@ -16,7 +16,6 @@ void main() async {
   
   // Setup Dependency Injection
   await setupServiceLocator();
-
   runApp(const MyApp());
 }
 

@@ -1,16 +1,29 @@
-# zamalek_fans_app
+# Pharmacy System App 🏥💊
 
-A new Flutter project.
+A modern, professional Pharmacy Management System built with Flutter following **Clean Architecture** principles.
 
-## Getting Started
+## 🚀 Features
+- **Smart Inventory Management:** Track medicine stock, expiry dates, and categories.
+- **POS System:** Fast checkout with integrated **Barcode Scanner**.
+- **Real-time Alerts:** Notifications for low stock and expiring items.
+- **Authentication:** Secure login and registration with session management (CacheHelper).
+- **Responsive UI:** Modern, interactive design with professional pharmacy branding (Teal Green).
 
-This project is a starting point for a Flutter application.
+## 🛠 Tech Stack
+- **Architecture:** Clean Architecture (Data, Domain, Presentation).
+- **State Management:** Flutter BLoC / Cubit.
+- **Network:** Dio with a dedicated Helper class.
+- **DI:** GetIt for Dependency Injection.
+- **Local Storage:** Shared Preferences (CacheHelper).
+- **Barcode Scanning:** Mobile Scanner.
 
-A few resources to get you started if this is your first Flutter project:
+## 📸 Screenshots
+*(Coming Soon)*
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## ⚙️ Installation
+1. Clone the repository.
+2. Run `flutter pub get`.
+3. Connect your device and run `flutter run`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+*Developed with ❤️ by Mahmoud Hany*
