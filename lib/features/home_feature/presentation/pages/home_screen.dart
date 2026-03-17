@@ -17,7 +17,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // إظهار رسالة ترحيبية عند فتح الشاشة
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showWelcomeMessage();
     });
@@ -85,9 +84,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               centerTitle: true,
               actions: [
+                // زر التنبيهات في الـ AppBar كما طلبت
                 IconButton(
-                  icon: const Icon(Icons.notifications_none_rounded),
-                  onPressed: () => cubit.changeIndex(2),
+                  icon: const Icon(Icons.notifications_active_outlined, color: Colors.orange),
+                  onPressed: () {
+                     // هنا ممكن تفتح شاشة التنبيهات كـ Dialog أو Navigate
+                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('قائمة التنبيهات (النواقص والتواريخ)')));
+                  },
                 ),
                 const SizedBox(width: 8),
               ],
@@ -99,11 +102,13 @@ class _HomeScreenState extends State<HomeScreen> {
             bottomNavigationBar: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,
               currentIndex: cubit.currentIndex,
+              selectedItemColor: AppColors.primary,
+              unselectedItemColor: Colors.grey,
               onTap: (index) => cubit.changeIndex(index),
               items: const [
                 BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), activeIcon: Icon(Icons.inventory_2), label: 'المخزن'),
                 BottomNavigationBarItem(icon: Icon(Icons.point_of_sale_outlined), activeIcon: Icon(Icons.point_of_sale), label: 'المبيعات'),
-                BottomNavigationBarItem(icon: Icon(Icons.notifications_active_outlined), activeIcon: Icon(Icons.notifications_active), label: 'التنبيهات'),
+                BottomNavigationBarItem(icon: Icon(Icons.history_edu_outlined), activeIcon: Icon(Icons.history_edu), label: 'سجل الفواتير'), // تم التعديل
                 BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings), label: 'الإعدادات'),
               ],
             ),

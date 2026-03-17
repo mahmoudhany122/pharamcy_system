@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../inventory_feature/presentation/pages/invoices_screen.dart';
 import '../../../inventory_feature/presentation/pages/pos_screen.dart';
 import '../../../inventory_feature/presentation/screens/medicine_screen.dart';
 import '../../../settings_feature/presentation/pages/settings_screen.dart';
@@ -15,19 +16,19 @@ class HomeCubit extends Cubit<HomeStates> {
   List<Widget> screens = [
     const MedicineScreen(),
     const POSScreen(),
-    const Center(child: Text('التنبيهات (قرب ينتهي / منتهي)')),
+    const InvoicesScreen(),
     const SettingsScreen(),
   ];
 
   List<String> titles = [
     'المخزن',
     'المبيعات (POS)',
-    'التنبيهات',
+    'سجل الفواتير',
     'الإعدادات',
   ];
 
   void changeIndex(int index) {
     currentIndex = index;
-    emit(HomeChangeBottomNavState(index)); // إضافة البارامتر المطلوب لحل الخطأ
+    emit(HomeChangeBottomNavState(index));
   }
 }

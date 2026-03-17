@@ -22,7 +22,7 @@ class SettingsCubit extends Cubit<SettingsStates> {
     }
   }
 
-  String currentLang = 'en';
+  String currentLang = 'ar'; // Default to Arabic
 
   void changeLanguage({String? langCode}) {
     if (langCode != null) {
@@ -31,13 +31,11 @@ class SettingsCubit extends Cubit<SettingsStates> {
         emit(SettingsChangeLanguageState());
       });
     } else {
-      // Toggle between en, ar, fr if no specific code provided (defaulting to cycle)
-      if (currentLang == 'en') {
-        currentLang = 'ar';
-      } else if (currentLang == 'ar') {
-        currentLang = 'fr';
-      } else {
+      // Toggle only between Arabic and English
+      if (currentLang == 'ar') {
         currentLang = 'en';
+      } else {
+        currentLang = 'ar';
       }
       CacheHelper.saveData(key: 'lang', value: currentLang).then((value) {
         emit(SettingsChangeLanguageState());

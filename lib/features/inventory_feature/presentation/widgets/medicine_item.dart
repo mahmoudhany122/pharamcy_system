@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/utiles/app_colors.dart';
 import '../../domain_layer/entities/medicine_entity.dart';
+import '../pages/edit_medicine_screen.dart'; // استدعاء شاشة التعديل
 
 class MedicineItem extends StatelessWidget {
   final MedicineEntity medicine;
@@ -31,7 +31,13 @@ class MedicineItem extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: () {
-              // Details if needed
+              // عند الضغط على الدواء يفتح شاشة التعديل فوراً
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditMedicineScreen(medicine: medicine),
+                ),
+              );
             },
             child: Padding(
               padding: const EdgeInsets.all(16.0),

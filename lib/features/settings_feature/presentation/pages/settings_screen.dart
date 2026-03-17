@@ -4,6 +4,7 @@ import '../../../../core/cache/cahche_helper.dart';
 import '../../../auth_feature/presentation/pages/login_screen.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_states.dart';
+import 'dashboard_screen.dart'; //// استدعاء شاشة الداش بورد
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -17,14 +18,27 @@ class SettingsScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('الإعدادات - Settings - Paramètres'),
+            title: const Text('الإعدادات - Settings'),
           ),
           body: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. Dark Mode Switch
+                // 1. Dashboard Button (The Wow Feature)
+                ListTile(
+                  leading: const Icon(Icons.dashboard_outlined, color: Colors.blue),
+                  title: const Text('لوحة الإحصائيات (الأرباح والمبيعات)', style: TextStyle(fontWeight: FontWeight.bold)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                    );
+                  },
+                ),
+                const Divider(),
+                // 2. Dark Mode Switch
                 ListTile(
                   leading: const Icon(Icons.dark_mode_outlined),
                   title: const Text('الوضع الليلي / Dark Mode'),
@@ -37,7 +51,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const Divider(),
                 
-                // 2. Language Selection
+                // 3. Language Selection
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 10.0),
                   child: Text(
@@ -67,18 +81,6 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const Divider(),
 
-                // 3. Notifications Status (Display Only for now)
-                ListTile(
-                  leading: const Icon(Icons.notifications_active_outlined),
-                  title: const Text('الإشعارات مفعلة تلقائياً'),
-                  subtitle: const Text('Notifications are active'),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Firebase Notifications are set up!')),
-                    );
-                  },
-                ),
-                
                 const Spacer(),
                 
                 // 4. Logout Button

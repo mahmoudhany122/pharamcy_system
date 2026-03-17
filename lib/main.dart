@@ -36,6 +36,7 @@ void main() async {
   // Setup Dependency Injection
   await setupServiceLocator();
 
+  // Default language is 'ar' (Arabic)
   bool isDark = CacheHelper.getData(key: 'isDark') ?? false;
   String lang = CacheHelper.getData(key: 'lang') ?? 'ar';
 
@@ -67,16 +68,15 @@ class MyApp extends StatelessWidget {
             title: 'Pharmacy System',
             debugShowCheckedModeBanner: false,
             
-            // Localization
+            // Localization (Arabic and English only)
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [
-              Locale('ar'),
-              Locale('en'),
-              Locale('fr'),
+              Locale('ar'), // Arabic
+              Locale('en'), // English
             ],
             locale: Locale(cubit.currentLang),
             
