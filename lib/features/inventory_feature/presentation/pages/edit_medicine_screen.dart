@@ -16,6 +16,8 @@ class EditMedicineScreen extends StatefulWidget {
 class _EditMedicineScreenState extends State<EditMedicineScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
+  late TextEditingController _genericNameController;
+  late TextEditingController _shelfLocationController;
   late TextEditingController _purchasePriceController;
   late TextEditingController _sellingPriceController;
   late TextEditingController _quantityController;
@@ -29,12 +31,21 @@ class _EditMedicineScreenState extends State<EditMedicineScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.medicine.name);
+    _genericNameController = TextEditingController(text: widget.medicine.genericName);
+    _shelfLocationController = TextEditingController(text: widget.medicine.shelfLocation ?? "");
     _purchasePriceController = TextEditingController(text: widget.medicine.purchasePrice.toString());
     _sellingPriceController = TextEditingController(text: widget.medicine.sellingPrice.toString());
     _quantityController = TextEditingController(text: widget.medicine.quantity.toString());
-    _barcodeController = TextEditingController(text: widget.medicine.barcode);
+    _barcodeController = TextEditingController(text: widget.medicine.barcode ?? "");
     _expiryDate = widget.medicine.expiryDate;
-    _category = widget.medicine.category;
+    
+    // حل مشكلة الـ Dropdown: التأكد من أن التصنيف موجود في القائمة
+    var cubit = MedicineCubit.get(context);
+    if (cubit.categories.contains(widget.medicine.category)) {
+      _category = widget.medicine.category;
+    } else {
+      _category = cubit.categories[1]; // القيمة الافتراضية لو القيمة القديمة مش موجودة
+    }
   }
 
   Future<void> _pickImage() async {
@@ -94,7 +105,13 @@ class _EditMedicineScreenState extends State<EditMedicineScreen> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'اسم الدواء', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'اسم الدواء (تجاري)', border: OutlineInputBorder()),
+                validator: (v) => v!.isEmpty ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _genericNameController,
+                decoration: const InputDecoration(labelText: 'الاسم العلمي / المادة الفعالة', border: OutlineInputBorder()),
                 validator: (v) => v!.isEmpty ? 'مطلوب' : null,
               ),
               const SizedBox(height: 15),
@@ -112,9 +129,18 @@ class _EditMedicineScreenState extends State<EditMedicineScreen> {
               const SizedBox(height: 15),
               DropdownButtonFormField<String>(
                 value: _category,
-                items: MedicineCubit.get(context).categories.where((e) => e != 'الكل').map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                isExpanded: true,
+                items: MedicineCubit.get(context).categories
+                    .where((e) => e != 'الكل')
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis)))
+                    .toList(),
                 onChanged: (v) => setState(() => _category = v!),
                 decoration: const InputDecoration(labelText: 'القسم', border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _shelfLocationController,
+                decoration: const InputDecoration(labelText: 'رقم الرف', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 15),
               Row(
@@ -164,13 +190,15 @@ class _EditMedicineScreenState extends State<EditMedicineScreen> {
                         id: widget.medicine.id,
                         uId: widget.medicine.uId,
                         name: _nameController.text,
+                        genericName: _genericNameController.text,
                         category: _category,
                         purchasePrice: double.parse(_purchasePriceController.text),
                         sellingPrice: double.parse(_sellingPriceController.text),
                         quantity: int.parse(_quantityController.text),
                         expiryDate: _expiryDate,
                         barcode: _barcodeController.text,
-                        imageUrl: widget.medicine.imageUrl, // في التعديل سنبقي الصورة القديمة حالياً للسرعة
+                        imageUrl: widget.medicine.imageUrl,
+                        shelfLocation: _shelfLocationController.text,
                       );
                       
                       MedicineCubit.get(context).updateMedicine(updatedMedicine);

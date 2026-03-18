@@ -4,19 +4,22 @@ class MedicineEntity extends Equatable {
   final String? id;
   final String uId;
   final String name;
+  final String genericName; // الاسم العلمي (للبدائل)
   final String category;
-  final double purchasePrice; // سعر الشراء
-  final double sellingPrice;  // سعر البيع
+  final double purchasePrice;
+  final double sellingPrice;
   final int quantity;
   final DateTime expiryDate;
   final String? description;
   final String? imageUrl;
   final String? barcode;
+  final String? shelfLocation; // مكان الرف (ميزة تنافسية)
 
   const MedicineEntity({
     this.id,
     required this.uId,
     required this.name,
+    required this.genericName,
     required this.category,
     required this.purchasePrice,
     required this.sellingPrice,
@@ -25,9 +28,9 @@ class MedicineEntity extends Equatable {
     this.description,
     this.imageUrl,
     this.barcode,
+    this.shelfLocation,
   });
 
-  // حساب الربح للقطعة الواحدة
   double get profitPerUnit => sellingPrice - purchasePrice;
 
   Map<String, dynamic> toMap() {
@@ -35,6 +38,7 @@ class MedicineEntity extends Equatable {
       'id': id,
       'uId': uId,
       'name': name,
+      'genericName': genericName,
       'category': category,
       'purchasePrice': purchasePrice,
       'sellingPrice': sellingPrice,
@@ -43,6 +47,7 @@ class MedicineEntity extends Equatable {
       'description': description,
       'imageUrl': imageUrl,
       'barcode': barcode,
+      'shelfLocation': shelfLocation,
     };
   }
 
@@ -51,6 +56,7 @@ class MedicineEntity extends Equatable {
       id: docId,
       uId: map['uId'] ?? '',
       name: map['name'] ?? '',
+      genericName: map['genericName'] ?? '',
       category: map['category'] ?? 'General',
       purchasePrice: (map['purchasePrice'] ?? 0.0).toDouble(),
       sellingPrice: (map['sellingPrice'] ?? 0.0).toDouble(),
@@ -59,6 +65,7 @@ class MedicineEntity extends Equatable {
       description: map['description'],
       imageUrl: map['imageUrl'],
       barcode: map['barcode'],
+      shelfLocation: map['shelfLocation'],
     );
   }
 
@@ -72,16 +79,8 @@ class MedicineEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        uId,
-        name,
-        category,
-        purchasePrice,
-        sellingPrice,
-        quantity,
-        expiryDate,
-        description,
-        imageUrl,
-        barcode
+        id, uId, name, genericName, category, purchasePrice, 
+        sellingPrice, quantity, expiryDate, description, 
+        imageUrl, barcode, shelfLocation
       ];
 }

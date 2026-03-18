@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain_layer/entities/medicine_entity.dart';
-import '../pages/edit_medicine_screen.dart'; // استدعاء شاشة التعديل
+import '../pages/edit_medicine_screen.dart';
 
 class MedicineItem extends StatelessWidget {
   final MedicineEntity medicine;
@@ -31,7 +31,6 @@ class MedicineItem extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: () {
-              // عند الضغط على الدواء يفتح شاشة التعديل فوراً
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -56,6 +55,15 @@ class MedicineItem extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        if (medicine.genericName.isNotEmpty)
+                          Text(
+                            medicine.genericName,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey[600],
+                            ),
+                          ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
@@ -68,6 +76,15 @@ class MedicineItem extends StatelessWidget {
                                 fontSize: 13,
                               ),
                             ),
+                            if (medicine.shelfLocation != null && medicine.shelfLocation!.isNotEmpty) ...[
+                              const SizedBox(width: 15),
+                              const Icon(Icons.location_on_outlined, size: 14, color: Colors.blue),
+                              const SizedBox(width: 4),
+                              Text(
+                                medicine.shelfLocation!,
+                                style: const TextStyle(color: Colors.blue, fontSize: 13, fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ],
                         ),
                       ],

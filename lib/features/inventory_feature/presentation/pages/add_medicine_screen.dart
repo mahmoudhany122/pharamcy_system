@@ -17,14 +17,23 @@ class AddMedicineScreen extends StatefulWidget {
 class _AddMedicineScreenState extends State<AddMedicineScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _genericNameController = TextEditingController();
+  final _shelfLocationController = TextEditingController();
   final _purchasePriceController = TextEditingController();
   final _sellingPriceController = TextEditingController();
   final _quantityController = TextEditingController();
   final _barcodeController = TextEditingController();
   DateTime _expiryDate = DateTime.now().add(const Duration(days: 365));
-  String _category = 'أدوية برد';
+  String? _category; // جعلناه Nullable لضمان الاختيار الصحيح
   File? _image;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // تعيين قيمة افتراضية موجودة فعلياً في القائمة لتجنب خطأ الـ Dropdown
+    _category = MedicineCubit.get(context).categories[1]; 
+  }
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
@@ -92,7 +101,13 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'اسم الدواء', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'اسم الدواء (تجاري)', border: OutlineInputBorder()),
+                validator: (v) => v!.isEmpty ? 'مطلوب' : null,
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _genericNameController,
+                decoration: const InputDecoration(labelText: 'الاسم العلمي / المادة الفعالة', border: OutlineInputBorder()),
                 validator: (v) => v!.isEmpty ? 'مطلوب' : null,
               ),
               const SizedBox(height: 15),
@@ -110,9 +125,18 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
               const SizedBox(height: 15),
               DropdownButtonFormField<String>(
                 value: _category,
-                items: MedicineCubit.get(context).categories.where((e) => e != 'الكل').map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                isExpanded: true,
+                items: MedicineCubit.get(context).categories
+                    .where((e) => e != 'الكل')
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis)))
+                    .toList(),
                 onChanged: (v) => setState(() => _category = v!),
                 decoration: const InputDecoration(labelText: 'القسم', border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _shelfLocationController,
+                decoration: const InputDecoration(labelText: 'رقم الرف', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 15),
               Row(
@@ -163,13 +187,15 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                       final medicine = MedicineEntity(
                         uId: FirebaseAuth.instance.currentUser!.uid,
                         name: _nameController.text,
-                        category: _category,
+                        genericName: _genericNameController.text,
+                        category: _category!,
                         purchasePrice: double.parse(_purchasePriceController.text),
                         sellingPrice: double.parse(_sellingPriceController.text),
                         quantity: int.parse(_quantityController.text),
                         expiryDate: _expiryDate,
                         barcode: _barcodeController.text,
                         imageUrl: imageUrl,
+                        shelfLocation: _shelfLocationController.text,
                       );
                       
                       MedicineCubit.get(context).addMedicine(medicine);

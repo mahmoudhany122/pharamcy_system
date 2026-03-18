@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/cache/cahche_helper.dart';
 import 'core/dependency_injection/service_locator.dart';
+import 'core/localization/app_localizations.dart';
 import 'core/network/dio_helper.dart';
 import 'core/network/notification_helper.dart';
 import 'core/utiles/app_theme.dart';
@@ -17,26 +19,23 @@ import 'features/splash_feature/presentation/pages/splash_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Firebase
   try {
     await Firebase.initializeApp();
+    
+    // تفعيل ميزة العمل بدون إنترنت (Offline Persistence) بأقصى سعة تخزينية
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
   } catch (e) {
     debugPrint("Firebase initialization failed: $e");
   }
 
-  // Initialize Cache
   await CacheHelper.init();
-
-  // Initialize Dio
   DioHelper.init();
-
-  // Initialize Notifications
   await NotificationHelper.init();
-
-  // Setup Dependency Injection
   await setupServiceLocator();
 
-  // Default language is 'ar' (Arabic)
   bool isDark = CacheHelper.getData(key: 'isDark') ?? false;
   String lang = CacheHelper.getData(key: 'lang') ?? 'ar';
 
@@ -67,24 +66,20 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Pharmacy System',
             debugShowCheckedModeBanner: false,
-            
-            // Localization (Arabic and English only)
             localizationsDelegates: const [
+              AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [
-              Locale('ar'), // Arabic
-              Locale('en'), // English
+              Locale('ar'),
+              Locale('en'),
             ],
             locale: Locale(cubit.currentLang),
-            
-            // Themes
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: cubit.isDark ? ThemeMode.dark : ThemeMode.light,
-
             home: const SplashScreen(),
           );
         },

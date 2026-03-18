@@ -1,6 +1,8 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/cache/cahche_helper.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utiles/app_colors.dart';
 import '../../../home_feature/presentation/pages/home_screen.dart';
 import '../cubit/auth_cubit.dart';
@@ -15,6 +17,7 @@ class LoginScreen extends StatelessWidget {
     var emailController = TextEditingController();
     var passwordController = TextEditingController();
     var formKey = GlobalKey<FormState>();
+    var size = MediaQuery.of(context).size;
 
     return BlocProvider(
       create: (context) => AuthCubit(),
@@ -25,7 +28,6 @@ class LoginScreen extends StatelessWidget {
                 ? state.uId 
                 : (state as AuthSocialLoginSuccessState).uId;
 
-            // حفظ الـ uId في الكاش عشان ميسجلش دخول كل مرة
             CacheHelper.saveData(key: 'uId', value: uId).then((value) {
                Navigator.pushAndRemoveUntil(
                 context,
@@ -39,124 +41,241 @@ class LoginScreen extends StatelessWidget {
               SnackBar(content: Text(state.error), backgroundColor: Colors.red),
             );
           }
-          if (state is AuthSocialLoginErrorState) {
-             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error), backgroundColor: Colors.red),
-            );
-          }
         },
         builder: (context, state) {
           var cubit = AuthCubit.get(context);
 
           return Scaffold(
-            body: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20.0),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'LOGIN',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primary,
+            body: Container(
+              height: size.height,
+              width: size.width,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary,
+                    AppColors.primary.withOpacity(0.7),
+                    Colors.black,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            FadeInDown(
+                              duration: const Duration(milliseconds: 800),
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white24),
+                                ),
+                                child: const Icon(
+                                  Icons.local_pharmacy_rounded,
+                                  size: 80,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text('Login now to manage your pharmacy'),
-                      const SizedBox(height: 30),
-                      TextFormField(
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: 'Email Address',
-                          prefixIcon: Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(),
+                            const SizedBox(height: 30),
+                            FadeInLeft(
+                              child: Text(
+                                "login".tr(context),
+                                style: TextStyle(
+                                  fontSize: size.width * 0.09,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                            ),
+                            FadeInRight(
+                              child: Text(
+                                "login_now".tr(context),
+                                style: const TextStyle(color: Colors.white70, fontSize: 16),
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                            FadeInUp(
+                              delay: const Duration(milliseconds: 200),
+                              child: _buildGlassTextField(
+                                controller: emailController,
+                                label: "email".tr(context),
+                                icon: Icons.email_outlined,
+                                context: context,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            FadeInUp(
+                              delay: const Duration(milliseconds: 400),
+                              child: _buildGlassTextField(
+                                controller: passwordController,
+                                label: "password".tr(context),
+                                icon: Icons.lock_outline,
+                                isPassword: true,
+                                cubit: cubit,
+                                context: context,
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                            FadeInUp(
+                              delay: const Duration(milliseconds: 600),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: 55,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (formKey.currentState!.validate()) {
+                                      cubit.userLogin(
+                                        email: emailController.text,
+                                        password: passwordController.text,
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: AppColors.primary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    elevation: 10,
+                                  ),
+                                  child: state is AuthLoginLoadingState
+                                      ? const CircularProgressIndicator()
+                                      : Text(
+                                          "login".tr(context).toUpperCase(),
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                        ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            FadeIn(
+                              delay: const Duration(milliseconds: 800),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("dont_have_account".tr(context), style: const TextStyle(color: Colors.white70)),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                                      );
+                                    },
+                                    child: Text(
+                                      "register_now".tr(context),
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            FadeInUp(
+                              delay: const Duration(milliseconds: 1000),
+                              child: Row(
+                                children: [
+                                  const Expanded(child: Divider(color: Colors.white24)),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                    child: Text("OR".tr(context), style: const TextStyle(color: Colors.white38)),
+                                  ),
+                                  const Expanded(child: Divider(color: Colors.white24)),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            FadeInUp(
+                              delay: const Duration(milliseconds: 1200),
+                              child: _buildSocialButton(
+                                label: "google_login".tr(context),
+                                icon: Icons.g_mobiledata_rounded,
+                                onTap: () => cubit.googleSignIn(),
+                                isLoading: state is AuthLoginLoadingState,
+                              ),
+                            ),
+                          ],
                         ),
-                        validator: (value) {
-                          if (value!.isEmpty) return 'Email must not be empty';
-                          return null;
-                        },
                       ),
-                      const SizedBox(height: 15),
-                      TextFormField(
-                        controller: passwordController,
-                        keyboardType: TextInputType.visiblePassword,
-                        obscureText: cubit.isPassword,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            onPressed: () => cubit.changePasswordVisibility(),
-                            icon: Icon(cubit.suffix),
-                          ),
-                          border: const OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value!.isEmpty) return 'Password is too short';
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 30),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              cubit.userLogin(
-                                email: emailController.text,
-                                password: passwordController.text,
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                          ),
-                          child: state is AuthLoginLoadingState
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text('LOGIN'),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('Don\'t have an account?'),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                              );
-                            },
-                            child: const Text('Register Now'),
-                          ),
-                        ],
-                      ),
-                      const Center(child: Text('OR')),
-                      const SizedBox(height: 15),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: OutlinedButton.icon(
-                          onPressed: () => cubit.googleSignIn(),
-                          icon: const Icon(Icons.login, color: Colors.red),
-                          label: state is AuthLoginLoadingState 
-                              ? const CircularProgressIndicator()
-                              : const Text('Sign in with Google'),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildGlassTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    AuthCubit? cubit,
+    required BuildContext context,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: isPassword ? (cubit?.isPassword ?? true) : false,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.white70),
+          prefixIcon: Icon(icon, color: Colors.white70),
+          suffixIcon: isPassword
+              ? IconButton(
+                  onPressed: () => cubit?.changePasswordVisibility(),
+                  icon: Icon(cubit?.suffix, color: Colors.white70),
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        ),
+        validator: (value) => value!.isEmpty ? 'Field required' : null,
+      ),
+    );
+  }
+
+  Widget _buildSocialButton({required String label, required IconData icon, required VoidCallback onTap, bool isLoading = false}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 55,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: Colors.white24),
+          color: Colors.white.withOpacity(0.05),
+        ),
+        child: isLoading 
+          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.login, color: Colors.redAccent),
+                const SizedBox(width: 10),
+                Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ],
+            ),
       ),
     );
   }
